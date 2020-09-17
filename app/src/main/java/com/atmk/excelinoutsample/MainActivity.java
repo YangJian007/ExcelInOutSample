@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.atmk.excelinoutsample.bean.RegionExcelBean;
+import com.atmk.excelinoutsample.bean.UserExcelBean;
 import com.atmk.excelinoutsample.util.FileUtils1;
 import com.leon.lfilepickerlibrary.LFilePicker;
 import com.leon.lfilepickerlibrary.utils.Constant;
@@ -128,9 +129,13 @@ public class MainActivity extends AppCompatActivity {
                    /* AssetManager asset = getAssets();
                     InputStream excelStream = asset.open("config/region.xls");*/
                     //方式2 从手机文件路径读取
+                 /*   InputStream excelStream= new FileInputStream(path);
+                    ExcelManager excelManager = new ExcelManager();
+                    List<RegionExcelBean> excelBeans = excelManager.fromExcel(excelStream, RegionExcelBean.class); */
+                 //方式3 读取表中另一sheet页
                     InputStream excelStream= new FileInputStream(path);
                     ExcelManager excelManager = new ExcelManager();
-                    List<RegionExcelBean> excelBeans = excelManager.fromExcel(excelStream, RegionExcelBean.class);
+                    List<UserExcelBean> excelBeans = excelManager.fromExcel(excelStream, UserExcelBean.class);
                     Log.i("excel_in", "" + excelBeans.size());
                     Toast.makeText(this,""+excelBeans.size(),Toast.LENGTH_SHORT).show();
                 } catch (Exception e) {
