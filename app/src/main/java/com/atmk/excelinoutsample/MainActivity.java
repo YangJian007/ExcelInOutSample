@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
 
     @PermissionSuccess(requestCode = STORAGE_PERMISSION)
     public void requestPermissionSuccess() {
-        if (flag == 0) {//导出文件
+        if (flag == 0) {//导出模板
             FileUtils1.getInstance(this).copyAssetsToSD("config", "test/BleConfig").setFileOperateCallback(new FileUtils1.FileOperateCallback() {
                 @Override
                 public void onSuccess() {

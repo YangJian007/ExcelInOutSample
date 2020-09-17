@@ -8,8 +8,8 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="导出路径：sd卡根目录test/BleConfig"/>
-
+        android:text="导出路径：sd卡根目录test/BleConfig" />
+    <!--从asset目录复制文件到手机内存中-->
     <Button
         android:id="@+id/tv_file_out"
         android:layout_width="match_parent"
@@ -18,9 +18,9 @@
 
     <Button
         android:id="@+id/tv_file_in"
-        android:layout_marginTop="20dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
         android:text="导入文件" />
 
 </LinearLayout>
