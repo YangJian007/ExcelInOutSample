@@ -1,0 +1,3 @@
+include ':jxlhelper-core'
+include ':app'
+rootProject.name = "ExcelInOutSample"
