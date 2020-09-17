@@ -2,20 +2,26 @@ package com.atmk.excelinoutsample;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.atmk.excelinoutsample.bean.RegionExcelBean;
 import com.atmk.excelinoutsample.util.FileUtils1;
 import com.leon.lfilepickerlibrary.LFilePicker;
 import com.leon.lfilepickerlibrary.utils.Constant;
 
+import java.io.FileInputStream;
+import java.io.FilterInputStream;
+import java.io.InputStream;
 import java.util.List;
 
 import butterknife.BindView;
@@ -24,6 +30,7 @@ import butterknife.OnClick;
 import kr.co.namee.permissiongen.PermissionFail;
 import kr.co.namee.permissiongen.PermissionGen;
 import kr.co.namee.permissiongen.PermissionSuccess;
+import top.eg100.code.excel.jxlhelper.ExcelManager;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -115,7 +122,22 @@ public class MainActivity extends AppCompatActivity {
             if (requestCode == REQUESTCODE_FROM_FRAGMENT) {
                 List<String> list = data.getStringArrayListExtra(Constant.RESULT_INFO);//文件路径
                 String path = list.get(0);//文件路径
-                Toast.makeText(this,path,Toast.LENGTH_SHORT).show();
+                Log.i("excel_in", "path:" +path);
+                try {
+                    //方式1 从asset目录读取
+                   /* AssetManager asset = getAssets();
+                    InputStream excelStream = asset.open("config/region.xls");*/
+                    //方式2 从手机文件路径读取
+                    InputStream excelStream= new FileInputStream(path);
+                    ExcelManager excelManager = new ExcelManager();
+                    List<RegionExcelBean> excelBeans = excelManager.fromExcel(excelStream, RegionExcelBean.class);
+                    Log.i("excel_in", "" + excelBeans.size());
+                    Toast.makeText(this,""+excelBeans.size(),Toast.LENGTH_SHORT).show();
+                } catch (Exception e) {
+                    Log.i("excel_in", "读取异常");
+                    e.printStackTrace();
+                }
+
             }
         }
     }
