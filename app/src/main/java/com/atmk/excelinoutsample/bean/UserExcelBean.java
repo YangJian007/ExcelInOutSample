@@ -13,11 +13,11 @@ import top.eg100.code.excel.jxlhelper.annotations.ExcelSheet;
  */
 @ExcelSheet(sheetName = "用户表")
 public class UserExcelBean {
-
+    //注意： 属性类型必须是String ，否则会解析异常
     @ExcelContent(titleName = "姓名")
     private String name;
     @ExcelContent(titleName = "年龄")
-    private int age;
+    private String age;
     @ExcelContent(titleName = "性别")
     private String gender;
 
@@ -29,11 +29,11 @@ public class UserExcelBean {
         this.name = name;
     }
 
-    public int getAge() {
+    public String getAge() {
         return age;
     }
 
-    public void setAge(int age) {
+    public void setAge(String age) {
         this.age = age;
     }
 
