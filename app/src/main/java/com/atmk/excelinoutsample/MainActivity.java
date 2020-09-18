@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.atmk.excelinoutsample.bean.RegionExcelBean;
 import com.atmk.excelinoutsample.bean.UserExcelBean;
 import com.atmk.excelinoutsample.util.FileUtils1;
 import com.leon.lfilepickerlibrary.LFilePicker;
@@ -33,10 +34,6 @@ import top.eg100.code.excel.jxlhelper.ExcelManager;
 
 public class MainActivity extends AppCompatActivity {
 
-
-    @BindView(R.id.tv_file_in)
-    Button tvFileIn;
-
     private static final int STORAGE_PERMISSION = 3;
     private static final int REQUESTCODE_FROM_FRAGMENT = 1001;
     private int flag;//0 导出文件  1导入文件
@@ -48,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
         ButterKnife.bind(this);
     }
 
-    @OnClick({R.id.tv_file_out_1, R.id.tv_file_out_2, R.id.tv_file_in})
+    @OnClick({R.id.tv_file_out_1, R.id.tv_file_out_2, R.id.tv_file_out_3, R.id.tv_file_in})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.tv_file_out_1://asset复制excel到手机存储
@@ -59,6 +56,9 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case R.id.tv_file_out_2://直接从变量List导出到手机内存excel中（单sheet）
                 flag = 2;
+                break;
+            case R.id.tv_file_out_3://直接从变量List<List<T>>导出到手机内存excel中（多sheet）
+                flag = 3;
                 break;
         }
         PermissionGen.with(this)
@@ -109,6 +109,33 @@ public class MainActivity extends AppCompatActivity {
             ExcelManager excelManager = new ExcelManager();
             try {
                 boolean isSuccess = excelManager.toExcel(Environment.getExternalStorageDirectory().getAbsolutePath() + "/test/FileOut/singleSheet.xls", users);
+                Log.i("excel_out", isSuccess ? "导出成功" : "导出失败");
+            } catch (Exception e) {
+                Log.i("excel_out", "导出失败");
+                e.printStackTrace();
+            }
+        } else if (flag == 3) {//直接从变量List<List<T>>导出到手机内存excel中（多sheet）
+            List<UserExcelBean> users = new ArrayList<>();
+            for (int i = 0; i < 50; i++) {
+                UserExcelBean userExcelBean = new UserExcelBean();
+                userExcelBean.setName("张三" + i);
+                userExcelBean.setAge("" + i);
+                userExcelBean.setGender(i % 2 == 0 ? "男" : "女");
+                users.add(userExcelBean);
+            }
+             List<RegionExcelBean> regions = new ArrayList<>();
+            for (int i = 0; i < 50; i++) {
+                RegionExcelBean bean = new RegionExcelBean();
+                bean.setProvince("省" + i);
+                bean.setCityListStr("市" + i);
+                regions.add(bean);
+            }
+            List<List<?>> lists=new ArrayList<>();
+            lists.add(users);
+            lists.add(regions);
+            ExcelManager excelManager = new ExcelManager();
+            try {
+                boolean isSuccess = excelManager.toExcel2(Environment.getExternalStorageDirectory().getAbsolutePath() + "/test/FileOut/multiSheet.xls", lists);
                 Log.i("excel_out", isSuccess ? "导出成功" : "导出失败");
             } catch (Exception e) {
                 Log.i("excel_out", "导出失败");

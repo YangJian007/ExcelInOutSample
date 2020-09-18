@@ -108,6 +108,66 @@ public class ExcelManager {
         return true;
     }
 
+    /**
+     * write excel to only multi sheet ,no format
+     */
+    public boolean toExcel2(OutputStream excelStream, List<List<?>> dataList) throws Exception {
+        if (dataList == null || dataList.size() == 0) {
+            return false;
+        }
+        WritableWorkbook workbook = null;
+        try {
+
+            // create one book
+            workbook = Workbook.createWorkbook(excelStream);
+            for (int i = 0; i < dataList.size(); i++) {
+                Class<?> dataType = dataList.get(i).get(0).getClass();
+                String sheetName = getSheetName(dataType);
+                List<ExcelClassKey> keys = getKeys(dataType);
+                // create sheet
+                WritableSheet sheet = workbook.createSheet(sheetName, i);
+                // add titles
+                for (int x = 0; x < keys.size(); x++) {
+                    sheet.addCell(new Label(x, 0, keys.get(x).getTitle()));
+                }
+                fieldCache.clear();
+                // add data
+                for (int y = 0; y < dataList.get(i).size(); y++) {
+                    for (int x = 0; x < keys.size(); x++) {
+                        String fieldName = keys.get(x).getFieldName();
+
+                        Field field = getField(dataType, fieldName);
+                        Object value = field.get(dataList.get(i).get(y));
+                        String content = value != null ? value.toString() : "";
+
+                        // below the title ,the data begin from y+1
+                        sheet.addCell(new Label(x, y + 1, content));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            if (workbook != null) {
+
+                try {
+                    workbook.write();
+                    workbook.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (WriteException e) {
+                    e.printStackTrace();
+                }
+            }
+            try {
+                excelStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return true;
+    }
+
     public boolean toExcel(String fileAbsoluteName, List<?> dataList) throws Exception {
 
         File file = new File(fileAbsoluteName);
@@ -125,6 +185,25 @@ public class ExcelManager {
         OutputStream stream = new FileOutputStream(file, false);
         return toExcel(stream, dataList);
     }
+
+    public boolean toExcel2(String fileAbsoluteName, List<List<?>> dataList) throws Exception {
+
+        File file = new File(fileAbsoluteName);
+        if (file.exists()) {
+            if (file.isDirectory()) {
+//                throw new Exception("do you want to write content into a directory named "
+//                        + fileAbsoluteName + " ? , please check your filePath");
+            }
+        }
+        File folder = file.getParentFile();
+        if (!folder.exists()) {
+            folder.mkdirs();
+        }
+
+        OutputStream stream = new FileOutputStream(file, false);
+        return toExcel2(stream, dataList);
+    }
+
     public boolean toExcel(File file, List<?> dataList) throws Exception {
 
         if (file.exists()) {
@@ -140,6 +219,23 @@ public class ExcelManager {
 
         OutputStream stream = new FileOutputStream(file, false);
         return toExcel(stream, dataList);
+    }
+
+    public boolean toExcel2(File file, List<List<?>> dataList) throws Exception {
+
+        if (file.exists()) {
+            if (file.isDirectory()) {
+//                throw new Exception("do you want to write content into a directory named "
+//                        + fileAbsoluteName + " ? , please check your filePath");
+            }
+        }
+        File folder = file.getParentFile();
+        if (!folder.exists()) {
+            folder.mkdirs();
+        }
+
+        OutputStream stream = new FileOutputStream(file, false);
+        return toExcel2(stream, dataList);
     }
 
     /**
@@ -278,7 +374,7 @@ public class ExcelManager {
         List<ExcelClassKey> keys = new ArrayList<>();
         for (int i = 0; i < fields.length; i++) {
             ExcelContent content = fields[i].getAnnotation(ExcelContent.class);
-            if(content!=null){
+            if (content != null) {
                 keys.add(new ExcelClassKey(content.titleName(), fields[i].getName(), content.index()));
             }
         }
