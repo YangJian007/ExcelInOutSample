@@ -11,10 +11,16 @@
         android:text="导出路径：sd卡根目录test/BleConfig" />
     <!--从asset目录复制文件到手机内存中-->
     <Button
-        android:id="@+id/tv_file_out"
+        android:id="@+id/tv_file_out_1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="导出模板" />
+
+    <Button
+        android:id="@+id/tv_file_out_2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="导出List" />
 
     <Button
         android:id="@+id/tv_file_in"

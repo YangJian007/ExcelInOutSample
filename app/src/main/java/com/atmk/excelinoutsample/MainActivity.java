@@ -2,7 +2,6 @@ package com.atmk.excelinoutsample;
 
 import android.Manifest;
 import android.content.Intent;
-import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -14,15 +13,14 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.atmk.excelinoutsample.bean.RegionExcelBean;
 import com.atmk.excelinoutsample.bean.UserExcelBean;
 import com.atmk.excelinoutsample.util.FileUtils1;
 import com.leon.lfilepickerlibrary.LFilePicker;
 import com.leon.lfilepickerlibrary.utils.Constant;
 
 import java.io.FileInputStream;
-import java.io.FilterInputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -35,8 +33,7 @@ import top.eg100.code.excel.jxlhelper.ExcelManager;
 
 public class MainActivity extends AppCompatActivity {
 
-    @BindView(R.id.tv_file_out)
-    Button tvFileOut;
+
     @BindView(R.id.tv_file_in)
     Button tvFileIn;
 
@@ -51,28 +48,25 @@ public class MainActivity extends AppCompatActivity {
         ButterKnife.bind(this);
     }
 
-    @OnClick({R.id.tv_file_out, R.id.tv_file_in})
+    @OnClick({R.id.tv_file_out_1, R.id.tv_file_out_2, R.id.tv_file_in})
     public void onViewClicked(View view) {
         switch (view.getId()) {
-            case R.id.tv_file_out:
+            case R.id.tv_file_out_1://asset复制excel到手机存储
                 flag = 0;
-                PermissionGen.with(this)
-                        .addRequestCode(STORAGE_PERMISSION)
-                        .permissions(
-                                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                                Manifest.permission.READ_EXTERNAL_STORAGE)
-                        .request();
                 break;
-            case R.id.tv_file_in:
+            case R.id.tv_file_in://从excel表读数据并转成List
                 flag = 1;
-                PermissionGen.with(this)
-                        .addRequestCode(STORAGE_PERMISSION)
-                        .permissions(
-                                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                                Manifest.permission.READ_EXTERNAL_STORAGE)
-                        .request();
+                break;
+            case R.id.tv_file_out_2://直接从变量List导出到手机内存excel中（单sheet）
+                flag = 2;
                 break;
         }
+        PermissionGen.with(this)
+                .addRequestCode(STORAGE_PERMISSION)
+                .permissions(
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                        Manifest.permission.READ_EXTERNAL_STORAGE)
+                .request();
     }
 
     @Override
@@ -86,12 +80,12 @@ public class MainActivity extends AppCompatActivity {
             FileUtils1.getInstance(this).copyAssetsToSD("config", "test/BleConfig").setFileOperateCallback(new FileUtils1.FileOperateCallback() {
                 @Override
                 public void onSuccess() {
-                    Toast.makeText(MainActivity.this,"模板已成功导出到sd卡根目录test/BleConfig下",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "模板已成功导出到sd卡根目录test/BleConfig下", Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
                 public void onFailed(String error) {
-                    Toast.makeText(MainActivity.this,"模板导出失败",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "模板导出失败", Toast.LENGTH_SHORT).show();
                 }
             });
         } else if (flag == 1) {//导入文件
@@ -103,6 +97,23 @@ public class MainActivity extends AppCompatActivity {
                     .withChooseMode(true)//文件夹选择模式
                     .withFileFilter(new String[]{"xls"})
                     .start();
+        } else if (flag == 2) {//直接从变量List导出到手机内存excel中（单sheet）
+            List<UserExcelBean> users = new ArrayList<>();
+            for (int i = 0; i < 50; i++) {
+                UserExcelBean userExcelBean = new UserExcelBean();
+                userExcelBean.setName("张三" + i);
+                userExcelBean.setAge("" + i);
+                userExcelBean.setGender(i % 2 == 0 ? "男" : "女");
+                users.add(userExcelBean);
+            }
+            ExcelManager excelManager = new ExcelManager();
+            try {
+                boolean isSuccess = excelManager.toExcel(Environment.getExternalStorageDirectory().getAbsolutePath() + "/test/FileOut/singleSheet.xls", users);
+                Log.i("excel_out", isSuccess ? "导出成功" : "导出失败");
+            } catch (Exception e) {
+                Log.i("excel_out", "导出失败");
+                e.printStackTrace();
+            }
         }
     }
 
@@ -123,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
             if (requestCode == REQUESTCODE_FROM_FRAGMENT) {
                 List<String> list = data.getStringArrayListExtra(Constant.RESULT_INFO);//文件路径
                 String path = list.get(0);//文件路径
-                Log.i("excel_in", "path:" +path);
+                Log.i("excel_in", "path:" + path);
                 try {
                     //方式1 从asset目录读取
                    /* AssetManager asset = getAssets();
@@ -132,12 +143,12 @@ public class MainActivity extends AppCompatActivity {
                  /*   InputStream excelStream= new FileInputStream(path);
                     ExcelManager excelManager = new ExcelManager();
                     List<RegionExcelBean> excelBeans = excelManager.fromExcel(excelStream, RegionExcelBean.class); */
-                 //方式3 读取表中另一sheet页
-                    InputStream excelStream= new FileInputStream(path);
+                    //方式3 读取表中另一sheet页
+                    InputStream excelStream = new FileInputStream(path);
                     ExcelManager excelManager = new ExcelManager();
                     List<UserExcelBean> excelBeans = excelManager.fromExcel(excelStream, UserExcelBean.class);
                     Log.i("excel_in", "" + excelBeans.size());
-                    Toast.makeText(this,""+excelBeans.size(),Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "" + excelBeans.size(), Toast.LENGTH_SHORT).show();
                 } catch (Exception e) {
                     Log.i("excel_in", "读取异常");
                     e.printStackTrace();
